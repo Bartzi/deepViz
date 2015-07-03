@@ -80,7 +80,7 @@ def layer_overview_png(checkpoint, layername):
     # XXX get_models
     model = get_models()[checkpoint]
     layer = model.layers[layername]
-    (num_filters, ksize, num_channels) = layer.shape
+    (num_filters, ksize_h, ksize_w, num_channels) = layer.shape
     ncols = 6 if num_channels in  (1, 3) else num_channels
     reshaped = images.normalize(layer.for_viz(combine=(num_channels==3)))
     return show_multiple(reshaped, ncols=ncols)
@@ -140,11 +140,11 @@ def layer_overview_svg_container(layername):
     """
     model = get_models()[0]
     layer = model.layers[layername]
-    (num_filters, ksize, num_channels) = layer.shape
+    (num_filters, ksize_h, ksize_w, num_channels) = layer.shape
     ncols = 6 if num_channels in  (1, 3) else num_channels
     nrows = int(math.ceil(float(num_filters) / 6)) if num_channels in (1, 3) else 100
     scale = int(request.args.get('scale', 1))
-    svg = images.generate_svg_filter_map(nrows * ncols, ksize, ncols, scale)
+    svg = images.generate_svg_filter_map(nrows * ncols, ksize_h, ncols, scale)
     return Response(svg, mimetype="image/svg+xml")
     
     

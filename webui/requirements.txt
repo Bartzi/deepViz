@@ -1,5 +1,5 @@
 flask
-pil
+pillow
 pydot
 networkx
 tornado

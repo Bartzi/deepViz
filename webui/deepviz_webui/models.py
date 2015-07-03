@@ -1,7 +1,7 @@
 import numpy as np
 import re
 import networkx as nx
-import _caffe
+import caffe
 from gpumodel import IGPUModel
 from shownet import ShowConvNet
 from decaf.util import translator
@@ -125,6 +125,7 @@ class CaffeLayer(object):
     def __init__(self, layer, name):
         self.layer = layer
         self.name = name
+        print(layer.type + " " + self._type())
         self.type = self._type()
         try:
             self._blob = layer.blobs[0]
@@ -135,20 +136,20 @@ class CaffeLayer(object):
     def for_viz(self, combine=False, offset=0, n=100):
         if self.shape == None:
             raise 'Cannot visualize non-parametric layer'
-        (num_filters, ksize, num_channels) = self.shape
+        (num_filters, ksize_h, ksize_w, num_channels) = self.shape
         filters = self._blob.data
         if self.type == 'fc':
-            filters = filters.reshape(num_filters, ksize)[offset:offset+n]
-            padding = np.ceil(np.sqrt(ksize))**2 - ksize
+            filters = filters.reshape(num_filters, ksize_h)[offset:offset+n]
+            padding = np.ceil(np.sqrt(ksize_h))**2 - ksize_h
             if padding > 0:
                 filters = np.pad(filters, [(0, 0), (0, padding)], mode='constant')
         elif self.type == 'conv':
             filters = filters[offset:offset+n]
-            num_filters = n
+            num_filters = filters.shape[0]
             if combine:
                 filters = filters.swapaxes(1,2).swapaxes(2,3)
             else:
-                filters = filters.reshape(num_filters * num_channels, ksize, ksize)
+                filters = filters.reshape(num_filters * num_channels, ksize_h, ksize_w)
         print 'FILTERS SHAPE = ', filters.shape
         return filters
 
@@ -165,15 +166,17 @@ class CaffeLayer(object):
         if self.type == 'fc':
             num_filters = self._blob.width
             num_channels = 1
-            ksize = self._blob.height
+            ksize_h = self._blob.height
+            ksize_w = 0
         elif self.type == 'conv':
-            ksize = self._blob.width
+            ksize_w = self._blob.width
+            ksize_h = self._blob.height
             if self._blob.width != self._blob.height:
                 print 'Attention: CaffeLayer filters are not square!'
             num_channels = self._blob.channels
         else:
             return None
-        return (num_filters, ksize, num_channels)
+        return (num_filters, ksize_h, ksize_w, num_channels)
 
 class CaffeModel(object):
     """
@@ -181,19 +184,20 @@ class CaffeModel(object):
     """
     def __init__(self, model):
         self.model = model
-        self.layers = {l.name: CaffeLayer(l, l.name) for l in model.layers}
+        print(dir(model.layers[0]))
+        self.layers = {name: CaffeLayer(l, name) for name, l in zip(model._layer_names, model.layers)}
 
     def graph(self):
         g = nx.DiGraph()
         for layername in self.layers:
             g.add_node(layername)
         for i in xrange(1, len(self.model.layers)):
-            u = self.model.layers[i-1].name
-            v = self.model.layers[i].name
+            u = self.model._layer_names[i-1]
+            v = self.model._layer_names[i]
             g.add_edge(u, v, label=self.layers[u].outputs())
         return g
 
     @staticmethod
     def load(specpath, modelpath):
-        return CaffeModel(_caffe.CaffeNet(specpath, modelpath))
+        return CaffeModel(caffe.Net(specpath, modelpath, 0))
 
