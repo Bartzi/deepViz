@@ -13,23 +13,23 @@ def normalize(imagedata):
     return imagedata
 
 
-def generate_svg_filter_map(num_filters, ksize, num_cols, scale=1, padding_px=1):
+def generate_svg_filter_map(num_filters, ksize_w, ksize_h, num_cols, scale=1, padding_px=1):
     """
     Returns an SVG that functions like an HTML image map.
     """
     num_rows = int(ceil((1.0 * num_filters / num_cols)))
     max_cols = int(floor(1.0 * num_filters / num_rows))
-    img_width  = ((max_cols - 1) * padding_px) + (ksize * max_cols)
-    img_height = ((num_rows - 1) * padding_px) + (ksize * num_rows)
-    filter_img_size = (ksize * scale, ksize * scale)
+    img_width  = ((max_cols - 1) * padding_px) + (ksize_w * max_cols)
+    img_height = ((num_rows - 1) * padding_px) + (ksize_h * num_rows)
+    filter_img_size = (ksize_w * scale, ksize_h * scale)
     svg_size = (img_width * scale, img_height * scale)
 
     svg = svgwrite.Drawing(size=svg_size)
     svg.add_stylesheet("/static/svg-styles.css", "noname")
     for row in range(num_rows):
         for col in range(num_cols):
-            x = col * (ksize + padding_px) * scale
-            y = row * (ksize + padding_px) * scale
+            x = col * (ksize_w + padding_px) * scale
+            y = row * (ksize_h + padding_px) * scale
             rect = svg.rect(insert=(x, y), size=filter_img_size, fill="none",
                             id="filter%i;channel%i" % (row, col))
             # It would be nice to use custom 'data-' attributes here.

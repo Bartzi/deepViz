@@ -1108,7 +1108,7 @@ class SumOfSquaresCostParser(CostParser):
 
 # All the layer parsers
 layer_parsers = {'data': lambda : DataLayerParser(),
-                 'fc': lambda : FCLayerParser(),
+                 'innerproduct': lambda : FCLayerParser(),
                  'conv': lambda : ConvLayerParser(),
                  'local': lambda : LocalUnsharedLayerParser(),
                  'softmax': lambda : SoftmaxLayerParser(),

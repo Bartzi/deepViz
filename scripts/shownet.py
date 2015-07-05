@@ -152,7 +152,7 @@ class ShowConvNet(ConvNet):
             raise ShowNetError("Layer with name '%s' not defined by given convnet." % self.show_filters)
         layer = self.layers[layer_names.index(self.show_filters)]
         filters = layer['weights'][self.input_idx]
-        if layer['type'] == 'fc': # Fully-connected layer
+        if layer['type'] == 'innerproduct': # Fully-connected layer
             num_filters = layer['outputs']
             channels = self.channels
         elif layer['type'] in ('conv', 'local'): # Conv layer

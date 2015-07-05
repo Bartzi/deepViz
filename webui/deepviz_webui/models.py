@@ -138,8 +138,9 @@ class CaffeLayer(object):
             raise 'Cannot visualize non-parametric layer'
         (num_filters, ksize_h, ksize_w, num_channels) = self.shape
         filters = self._blob.data
-        if self.type == 'fc':
-            filters = filters.reshape(num_filters, ksize_h)[offset:offset+n]
+        if self.type == 'innerproduct':
+            filters = filters[offset:offset + n]
+            filters = filters.reshape(n * num_channels, ksize_h)
             padding = np.ceil(np.sqrt(ksize_h))**2 - ksize_h
             if padding > 0:
                 filters = np.pad(filters, [(0, 0), (0, padding)], mode='constant')
@@ -163,9 +164,9 @@ class CaffeLayer(object):
 
     def _shape(self):
         num_filters = self._blob.num
-        if self.type == 'fc':
+        if self.type == 'innerproduct':
             num_filters = self._blob.width
-            num_channels = 1
+            num_channels = self._blob.channels
             ksize_h = self._blob.height
             ksize_w = 0
         elif self.type == 'conv':

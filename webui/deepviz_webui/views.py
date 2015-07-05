@@ -144,7 +144,7 @@ def layer_overview_svg_container(layername):
     ncols = 6 if num_channels in  (1, 3) else num_channels
     nrows = int(math.ceil(float(num_filters) / 6)) if num_channels in (1, 3) else 100
     scale = int(request.args.get('scale', 1))
-    svg = images.generate_svg_filter_map(nrows * ncols, ksize_h, ncols, scale)
+    svg = images.generate_svg_filter_map(nrows * ncols, ksize_w, ksize_h, ncols, scale)
     return Response(svg, mimetype="image/svg+xml")
     
     
