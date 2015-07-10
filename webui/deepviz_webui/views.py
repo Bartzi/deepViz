@@ -88,13 +88,15 @@ def layer_overview_png(checkpoint, layername):
 
 def run_model_on_corpus_image(checkpoint, imagenum, output_blobs):
     # TODO Fix for caffe/imagenet
-    return 'Broken pending imagenet/caffe support', 500
     # This is based on decaf's "imagenet" script:
     corpus = get_image_corpus()
-    image = corpus.get_all_images_data()[imagenum] - corpus.get_mean()
+    image = corpus.get_all_images_data()[imagenum]
     model = get_models()[checkpoint]
     arr = image.astype(np.float32)
-    return model.predict(data=arr, output_blobs=output_blobs)
+    model.model.set_input_arrays(
+        np.ascontiguousarray(image[np.newaxis, ...], dtype=np.float32),
+        np.empty(1, dtype=np.float32))
+    return model.model.forward()
 
 
 @app.route("/checkpoints/<int:checkpoint>/layers/<layername>/apply/<int:imagenum>/overview.png")
@@ -121,8 +123,6 @@ def predict_for_image(checkpoint, imagenum):
     """
     Return predictions for a particular image.
     """
-    # TODO Fix for caffe/imagenet
-    return 'Broken pending imagenet/caffe support', 500
     features = run_model_on_corpus_image(checkpoint, imagenum, ["probs_cudanet_out"])
     class_number_probs = enumerate(features["probs_cudanet_out"][0])
     corpus = get_image_corpus()
