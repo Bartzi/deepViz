@@ -14,6 +14,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../scripts"))
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, required=True)
 parser.add_argument("--caffe", type=str)
+parser.add_argument("--image-corpus", type=str)
 parser.add_argument("--port", type=int, default=5000)
 parser.add_argument("--debug", action="store_true")
 
@@ -34,6 +35,7 @@ from deepviz_webui.app import app
 
 app.config["TRAINED_MODEL_PATH"] = args.model
 app.config["CAFFE_SPEC_PATH"] = args.caffe
+app.config["IMAGE_CORPUS_PATH"] = args.image_corpus
 
 # TODO: Restore data and stats w/Caffe+Imagenet
 #app.config["CIFAR_10_PATH"] = args.cifar

@@ -1,5 +1,6 @@
 flask
 pillow
+h5py
 pydot
 networkx
 tornado

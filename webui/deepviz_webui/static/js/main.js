@@ -308,10 +308,10 @@ var current_image = "";
 var dagSVG;
 
 function layerIsSelectable(layerName) {
-    if (layerName.match(/(conv|fc)\d+$/)) {
+    if (layerName.match(/(conv|fc|innerproduct)\d+$/)) {
         return true;
     } else if (current_image != "") {
-        return layerName.match(/pool\d+$/) || layerName.match(/(pool|conv|fc)\d+_neuron$/)
+        return layerName.match(/pool\d+$/) || layerName.match(/(pool|conv|fc|innerproduct)\d+_neuron$/)
     } else {
         return false;
     }

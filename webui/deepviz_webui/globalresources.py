@@ -2,7 +2,7 @@
 Resources that are shared across all requests.
 """
 from deepviz_webui.app import app
-from deepviz_webui.imagecorpus import CIFAR10ImageCorpus
+from deepviz_webui.imagecorpus import HDF5ImageCorpus
 from deepviz_webui.model_stats_db import ModelStatsDB
 from models import *
 import os
@@ -18,10 +18,10 @@ class BrokenByCaffeError(Exception):
 
 def get_image_corpus():
     # TODO Fix this for Imagenet
-    raise BrokenByCaffeError('get_image_corpus: Needs to be fixed for ImageNet')
+    # raise BrokenByCaffeError('get_image_corpus: Needs to be fixed for ImageNet')
     global _image_corpus
     if _image_corpus is None:
-        _image_corpus = CIFAR10ImageCorpus(app.config["CIFAR_10_PATH"])
+        _image_corpus = HDF5ImageCorpus(app.config['IMAGE_CORPUS_PATH'])
     return _image_corpus
 
 def get_models():

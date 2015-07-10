@@ -34,3 +34,10 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# IntelliJ
+.idea
+*.iml
+
+# data files
+data

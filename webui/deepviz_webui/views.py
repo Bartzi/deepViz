@@ -26,7 +26,7 @@ def get_image_from_corpus(image_num):
         # TODO Fix this to work with imagenet
         corpus = get_image_corpus()
         image = corpus.get_image(image_num)
-    except e:
+    except Exception as e:
         image = np.eye(32)
     scale = int(request.args.get('scale', 1))
     if scale != 1:
@@ -44,7 +44,7 @@ def image_corpus_query(query):
     # TODO Fix this for imagenet
     try:
         corpus = get_image_corpus()
-    except e:
+    except Exception as e:
         return jsonify([('foo', 1)])
     # TODO: limit the number of search results, or paginate them.
     results = dict(corpus.find_images(query))
