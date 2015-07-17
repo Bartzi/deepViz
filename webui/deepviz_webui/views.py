@@ -96,7 +96,7 @@ def run_model_on_corpus_image(checkpoint, imagenum, output_blobs):
     model.model.set_input_arrays(
         np.ascontiguousarray(image[np.newaxis, ...], dtype=np.float32),
         np.empty(1, dtype=np.float32))
-    return model.model.forward()
+    return model.model.forward(output_blobs)
 
 
 @app.route("/checkpoints/<int:checkpoint>/layers/<layername>/apply/<int:imagenum>/overview.png")
@@ -107,8 +107,8 @@ def convolved_layer_overview_png(checkpoint, imagenum, layername):
     Visualizes the applications of a layer's filters to an image.
     """
     # This is based on decaf's "imagenet" script:
-    classified = run_model_on_corpus_image(checkpoint, imagenum, [layername + "_cudanet_out"])
-    layer = classified[layername + "_cudanet_out"]
+    classified = run_model_on_corpus_image(checkpoint, imagenum, [layername])
+    layer = classified[layername]
     if layername.startswith("fc") and layername.endswith("_neuron"):
         # For fcN, the layer's shape is (1, N).
         return show_single(layer[0])
@@ -123,10 +123,19 @@ def predict_for_image(checkpoint, imagenum):
     """
     Return predictions for a particular image.
     """
-    features = run_model_on_corpus_image(checkpoint, imagenum, ["probs_cudanet_out"])
-    class_number_probs = enumerate(features["probs_cudanet_out"][0])
-    corpus = get_image_corpus()
-    class_label_probs = [{'class': corpus.label_names[l], 'prob': float(p)} for (l, p) in class_number_probs]
+    features = run_model_on_corpus_image(checkpoint, imagenum, ["label"])
+
+    class_label_probs = []
+    for prediction in features:
+        if 'prob' not in prediction:
+            continue
+        max_item = features[prediction].max()
+        max_index = np.where(features[prediction][0] == max_item)[0][0]
+
+        class_label_probs.append({
+            'class': str(max_index),
+            'prob': float(max_item),
+        })
     return jsonify({'predictions': class_label_probs})
 
 
