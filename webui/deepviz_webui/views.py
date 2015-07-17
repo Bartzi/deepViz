@@ -114,7 +114,8 @@ def convolved_layer_overview_png(checkpoint, imagenum, layername):
         return show_single(layer[0])
     else:
         layer = layer[0, :, :, :]  # shape this into a (k, k, num_filters) array
-        return show_channels(layer)
+        return show_multiple(layer)
+        # return show_channels(layer)
 
 
 @app.route("/checkpoints/<int:checkpoint>/predict/<int:imagenum>")
